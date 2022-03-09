@@ -7,9 +7,7 @@ public class WeatherDto {
 	private Double dewpt;
 	private String wind;
 	private Double vsby;
-	private String sky;
-	private String weather;
-	private String queryTime;
+	private String skyWeather;
 
 	public String getTime() {
 		return time;
@@ -59,28 +57,12 @@ public class WeatherDto {
 		this.vsby = vsby;
 	}
 
-	public String getSky() {
-		return sky;
+	public String getSkyWeather() {
+		return skyWeather;
 	}
 
-	public void setSky(String sky) {
-		this.sky = sky;
-	}
-
-	public String getWeather() {
-		return weather;
-	}
-
-	public void setWeather(String weather) {
-		this.weather = weather;
-	}
-
-	public String getQueryTime() {
-		return queryTime;
-	}
-
-	public void setQueryTime(String queryTime) {
-		this.queryTime = queryTime;
+	public void setSkyWeather(String skyWeather) {
+		this.skyWeather = skyWeather;
 	}
 
 }
