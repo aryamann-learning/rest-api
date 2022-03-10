@@ -12,5 +12,8 @@ public class DemoConstants {
 	public static final String EXCEL = "excel";
 	public static final String TEXT = "text";
 	public static final String DB = "db";
+	
+	// Weather API Constants
+	public static final String WEATHER_URL = "https://run.mocky.io/v3/0e4c398b-395d-408c-bff6-dc3cb565cf55";
 
 }

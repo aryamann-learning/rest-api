@@ -4,19 +4,29 @@ import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.Builder;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.constants.DemoConstants;
 import com.example.demo.dto.WeatherDto;
 
 @Service
 public class WeatherServiceImpl implements WeatherService {
 
+	public String getXml() {
+		Builder webClient = WebClient.builder();
+		return webClient.build().get().uri(DemoConstants.WEATHER_URL).retrieve().bodyToMono(String.class).block();
+	}
+
 	@Override
-	public WeatherDto parseWeatherXml(String xml) {
+	public WeatherDto parseWeatherXml() {
+		// get xml using web client
+		String xml = getXml();
+
 		if (xml.trim().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request can't be empty");
 		}
-
 		WeatherDto weatherDto = new WeatherDto();
 		String cData = xml.substring(xml.indexOf("CDATA"), xml.indexOf("End Of Text"));
 		String patternData = cData.substring(cData.indexOf("-"), cData.lastIndexOf("-")).trim();

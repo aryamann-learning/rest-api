@@ -4,6 +4,6 @@ import com.example.demo.dto.WeatherDto;
 
 public interface WeatherService {
 
-	WeatherDto parseWeatherXml(String xml);
+	WeatherDto parseWeatherXml();
 
 }
