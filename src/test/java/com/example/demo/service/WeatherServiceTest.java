@@ -14,7 +14,8 @@ public class WeatherServiceTest extends SpringBootTestConfig {
 	@Test
 	public void testParseWeatherXml() {
 		String xml = "<![CDATA[ TIME STN TEMP DEWPT WIND VSBY SKY/CURRENT WEATHER ---- ---- ---- ----- ------------- -------- --------------------- 0454 KMEM 43 31 NNE 12 G 18 10 Cloudy Query Time: Mar 08 2022 05:31:46 GMT End Of Text.]]> ";
-		WeatherDto dto = weatherService.parseWeatherXml(xml);
+		WeatherDto dto = weatherService.parseWeatherXml();
 		Assert.assertNotNull(dto);
 	}
+
 }

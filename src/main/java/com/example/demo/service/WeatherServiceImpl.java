@@ -14,7 +14,7 @@ import com.example.demo.dto.WeatherDto;
 @Service
 public class WeatherServiceImpl implements WeatherService {
 
-	public String getXml() {
+	private String getXml() {
 		Builder webClient = WebClient.builder();
 		return webClient.build().get().uri(DemoConstants.WEATHER_URL).retrieve().bodyToMono(String.class).block();
 	}
