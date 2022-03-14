@@ -16,7 +16,9 @@ public class DemoConstants {
 	// Weather API Constants
 	public static final String WEATHER_URL = "https://run.mocky.io/v3/0e4c398b-395d-408c-bff6-dc3cb565cf55";
 
-	// Pdf file Reading API
+	// Flight plan API
 	public static final String PDF_PATH = "D:\\Data\\fpsPlanOutputPDF.pdf";
+	public static final String LINE_SEPERATOR_REGEX = "\r\n|\r|\n";
+	public static final String FLT_HEADER = "FLT    DTE DEP   DEST  ALTN  EQUIP    ACFT NR  CRZ WND/C RTE";
 
 }
