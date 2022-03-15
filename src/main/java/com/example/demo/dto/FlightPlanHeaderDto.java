@@ -1,6 +1,6 @@
 package com.example.demo.dto;
 
-public class FlightPlanDto {
+public class FlightPlanHeaderDto {
 	private String flightNumber;
 	private Double legDate;
 	private String origin;
@@ -11,6 +11,7 @@ public class FlightPlanDto {
 	private Double cruiseValue;
 	private String windValue;
 	private String routeCode;
+
 	private String completeText;
 
 	public String getFlightNumber() {

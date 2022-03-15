@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.FlightPlanDto;
+import com.example.demo.dto.FlightPlanHeaderDto;
+import com.example.demo.dto.FlightPlanOOOITimeDto;
 
 public interface FlightPlanService {
 
-	public FlightPlanDto getFlightPlanInfo();
+	public FlightPlanHeaderDto parseFlightHeader();
+
+	public FlightPlanOOOITimeDto parseFlightOOOITimes();
 
 }
