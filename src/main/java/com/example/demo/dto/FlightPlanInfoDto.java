@@ -1,6 +1,6 @@
 package com.example.demo.dto;
 
-public class FlightPlanHeaderDto {
+public class FlightPlanInfoDto {
 	private String flightNumber;
 	private Double legDate;
 	private String origin;
@@ -11,7 +11,12 @@ public class FlightPlanHeaderDto {
 	private Double cruiseValue;
 	private String windValue;
 	private String routeCode;
-
+	private String schOutTime;
+	private String schOffTime;
+	private String schOnTime;
+	private String schInTime;
+	private String schFltTime;
+	private String schBlkTime;
 	private String completeText;
 
 	public String getFlightNumber() {
@@ -92,6 +97,54 @@ public class FlightPlanHeaderDto {
 
 	public void setRouteCode(String routeCode) {
 		this.routeCode = routeCode;
+	}
+
+	public String getSchOutTime() {
+		return schOutTime;
+	}
+
+	public void setSchOutTime(String schOutTime) {
+		this.schOutTime = schOutTime;
+	}
+
+	public String getSchOffTime() {
+		return schOffTime;
+	}
+
+	public void setSchOffTime(String schOffTime) {
+		this.schOffTime = schOffTime;
+	}
+
+	public String getSchOnTime() {
+		return schOnTime;
+	}
+
+	public void setSchOnTime(String schOnTime) {
+		this.schOnTime = schOnTime;
+	}
+
+	public String getSchInTime() {
+		return schInTime;
+	}
+
+	public void setSchInTime(String schInTime) {
+		this.schInTime = schInTime;
+	}
+
+	public String getSchFltTime() {
+		return schFltTime;
+	}
+
+	public void setSchFltTime(String schFltTime) {
+		this.schFltTime = schFltTime;
+	}
+
+	public String getSchBlkTime() {
+		return schBlkTime;
+	}
+
+	public void setSchBlkTime(String schBlkTime) {
+		this.schBlkTime = schBlkTime;
 	}
 
 	public String getCompleteText() {

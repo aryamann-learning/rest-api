@@ -10,12 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.constants.DemoConstants;
-import com.example.demo.dto.FlightPlanHeaderDto;
-import com.example.demo.dto.FlightPlanOOOITimeDto;
+import com.example.demo.dto.FlightPlanInfoDto;
 
 @Service
 public class FlightPlanServiceImpl implements FlightPlanService {
-	
+
 	private String getPDFCompleteText() {
 		try {
 			File file = new File(DemoConstants.PDF_PATH);
@@ -29,34 +28,32 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		}
 	}
 
-	@Override
-	public FlightPlanHeaderDto parseFlightHeader() {
-		FlightPlanHeaderDto flightPlanHeaderDto = new FlightPlanHeaderDto();
+	private FlightPlanInfoDto parseFlightHeader(FlightPlanInfoDto flightPlanInfoDto) {
 		String completeText = getPDFCompleteText();
 		String fltPlanData = getPDFNextLine(completeText, DemoConstants.FLT_HEADER);
-		
+
 		int startIndex = 0;
-		flightPlanHeaderDto.setFlightNumber(fltPlanData.substring(startIndex, 8).trim());
+		flightPlanInfoDto.setFlightNumber(fltPlanData.substring(startIndex, 8).trim());
 		startIndex += 8;
-		flightPlanHeaderDto.setLegDate(Double.parseDouble(fltPlanData.substring(startIndex, startIndex + 3).trim()));
+		flightPlanInfoDto.setLegDate(Double.parseDouble(fltPlanData.substring(startIndex, startIndex + 3).trim()));
 		startIndex += 3;
-		flightPlanHeaderDto.setOrigin(fltPlanData.substring(startIndex, startIndex + 6).trim());
+		flightPlanInfoDto.setOrigin(fltPlanData.substring(startIndex, startIndex + 6).trim());
 		startIndex += 6;
-		flightPlanHeaderDto.setDestination(fltPlanData.substring(startIndex, startIndex + 6).trim());
+		flightPlanInfoDto.setDestination(fltPlanData.substring(startIndex, startIndex + 6).trim());
 		startIndex += 6;
-		flightPlanHeaderDto.setAlternate(fltPlanData.substring(startIndex, startIndex + 6).trim());
+		flightPlanInfoDto.setAlternate(fltPlanData.substring(startIndex, startIndex + 6).trim());
 		startIndex += 6;
-		flightPlanHeaderDto.setEquipment(fltPlanData.substring(startIndex, startIndex + 9).trim());
+		flightPlanInfoDto.setEquipment(fltPlanData.substring(startIndex, startIndex + 9).trim());
 		startIndex += 9;
-		flightPlanHeaderDto.setAircraftNumber(fltPlanData.substring(startIndex, startIndex + 9).trim());
+		flightPlanInfoDto.setAircraftNumber(fltPlanData.substring(startIndex, startIndex + 9).trim());
 		startIndex += 9;
-		flightPlanHeaderDto.setCruiseValue(Double.parseDouble(fltPlanData.substring(startIndex, startIndex + 5).trim()));
+		flightPlanInfoDto.setCruiseValue(Double.parseDouble(fltPlanData.substring(startIndex, startIndex + 5).trim()));
 		startIndex += 5;
-		flightPlanHeaderDto.setWindValue(fltPlanData.substring(startIndex, startIndex + 5).trim());
+		flightPlanInfoDto.setWindValue(fltPlanData.substring(startIndex, startIndex + 5).trim());
 		startIndex += 5;
-		flightPlanHeaderDto.setRouteCode(fltPlanData.substring(startIndex, startIndex + 3).trim());
-		flightPlanHeaderDto.setCompleteText(completeText);
-		return flightPlanHeaderDto;
+		flightPlanInfoDto.setRouteCode(fltPlanData.substring(startIndex, startIndex + 3).trim());
+		flightPlanInfoDto.setCompleteText(completeText);
+		return flightPlanInfoDto;
 	}
 
 	private String getPDFNextLine(String completeText, String containsText) {
@@ -65,30 +62,34 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		return lines[1];
 	}
 
-	@Override
-	public FlightPlanOOOITimeDto parseFlightOOOITimes() {
-		FlightPlanOOOITimeDto flightPlanTimesDto = new FlightPlanOOOITimeDto();
+	private FlightPlanInfoDto parseFlightOOOITimes(FlightPlanInfoDto flightPlanInfoDto) {
 		String completeText = getPDFCompleteText();
 
 		int startIndex = 0;
 		String schFltOutData = getPDFNextLine(completeText, "OUT/OFF");
 		startIndex = 60;
-		flightPlanTimesDto.setSchOutTime(schFltOutData.substring(startIndex, startIndex + 4).trim());
+		flightPlanInfoDto.setSchOutTime(schFltOutData.substring(startIndex, startIndex + 4).trim());
 		startIndex += 5;
-		flightPlanTimesDto.setSchOffTime(schFltOutData.substring(startIndex, startIndex + 4).trim());
+		flightPlanInfoDto.setSchOffTime(schFltOutData.substring(startIndex, startIndex + 4).trim());
 
 		String schFltInData = getPDFNextLine(completeText, "ON/IN");
 		startIndex = 60;
-		flightPlanTimesDto.setSchOnTime(schFltInData.substring(startIndex, startIndex + 4).trim());
+		flightPlanInfoDto.setSchOnTime(schFltInData.substring(startIndex, startIndex + 4).trim());
 		startIndex += 5;
-		flightPlanTimesDto.setSchInTime(schFltInData.substring(startIndex, startIndex + 4));
+		flightPlanInfoDto.setSchInTime(schFltInData.substring(startIndex, startIndex + 4));
 
 		String schFltData = getPDFNextLine(completeText, "FLT/BLK");
 		startIndex = 60;
-		flightPlanTimesDto.setSchFltTime(schFltData.substring(startIndex, startIndex + 4).trim());
+		flightPlanInfoDto.setSchFltTime(schFltData.substring(startIndex, startIndex + 4).trim());
 		startIndex += 5;
-		flightPlanTimesDto.setSchBlkTime(schFltData.substring(startIndex, startIndex + 4));
+		flightPlanInfoDto.setSchBlkTime(schFltData.substring(startIndex, startIndex + 4));
 
-		return flightPlanTimesDto;
+		return flightPlanInfoDto;
+	}
+
+	@Override
+	public FlightPlanInfoDto getFlightInfo() {
+		FlightPlanInfoDto flightPlanInfoDto = new FlightPlanInfoDto();
+		return parseFlightOOOITimes(parseFlightHeader(flightPlanInfoDto));
 	}
 }
