@@ -19,6 +19,7 @@ public class FlightPlanInfoDto {
 	private String schBlkTime;
 	private FlightFuelTimeDetailsDto fuelTimeDetails;
 	private FlightWeightParametersDto weightDetails;
+	private FlightCapacityDto capacityDetails;
 	private String completeText;
 
 	public String getFlightNumber() {
@@ -163,6 +164,14 @@ public class FlightPlanInfoDto {
 
 	public void setWeightDetails(FlightWeightParametersDto weightDetails) {
 		this.weightDetails = weightDetails;
+	}
+
+	public FlightCapacityDto getCapacityDetails() {
+		return capacityDetails;
+	}
+
+	public void setCapacityDetails(FlightCapacityDto capacityDetails) {
+		this.capacityDetails = capacityDetails;
 	}
 
 	public String getCompleteText() {

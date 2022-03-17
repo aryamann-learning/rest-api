@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.constants.DemoConstants;
 import com.example.demo.dto.FlightFuelTimeDetailsDto;
+import com.example.demo.dto.FlightCapacityDto;
 import com.example.demo.dto.FlightPlanInfoDto;
 import com.example.demo.dto.FlightWeightParametersDto;
 import com.example.demo.dto.FuelTime;
@@ -148,7 +149,8 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 
 		String basicOperationWeightDto = getPDFCurrentLine(completeText, "BOW");
 		int startIndex = 10;
-		flightWeightParametersDto.setBasicOperationWeight(basicOperationWeightDto.substring(startIndex, startIndex + 6).trim());
+		flightWeightParametersDto
+				.setBasicOperationWeight(basicOperationWeightDto.substring(startIndex, startIndex + 6).trim());
 
 		String payLoadDto = getPDFCurrentLine(completeText, "PYLD");
 		flightWeightParametersDto.setPayLoad(payLoadDto.substring(startIndex, startIndex + 6).trim());
@@ -170,8 +172,41 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		flightWeightParametersDto.setLaunchGrossWeight(launchGrossWeight.substring(startIndex, startIndex + 6).trim());
 
 		String localMeanTimeGrossWeight = getPDFCurrentLine(completeText, "LMTOGW");
-		flightWeightParametersDto.setLocalMeanTimeGrossWeight(localMeanTimeGrossWeight.substring(startIndex, startIndex + 6).trim());
+		flightWeightParametersDto
+				.setLocalMeanTimeGrossWeight(localMeanTimeGrossWeight.substring(startIndex, startIndex + 6).trim());
 		flightPlanInfoDto.setWeightDetails(flightWeightParametersDto);
+		return flightPlanInfoDto;
+	}
+
+	private FlightPlanInfoDto parseFlightCapacityDetails(FlightPlanInfoDto flightPlanInfoDto) {
+		String completeText = getPDFCompleteText();
+		FlightCapacityDto flightCapacityDto = new FlightCapacityDto();
+
+		String indexDto = getPDFCurrentLine(completeText, "INDEX");
+		int startIndex = 9;
+		flightCapacityDto.setIndex(indexDto.substring(startIndex, startIndex + 6).trim());
+
+		String maxZeroFuelWeightDto = getPDFCurrentLine(completeText, "MAXZFW");
+		flightCapacityDto.setMaxZeroFuelWeight(maxZeroFuelWeightDto.substring(startIndex, startIndex + 6).trim());
+
+		String minFltwDto = getPDFCurrentLine(completeText, "MINFLTW");
+		flightCapacityDto.setMinFltw(minFltwDto.substring(startIndex, startIndex + 6).trim());
+
+		String maxTakeOffGrossWeightDto = getPDFCurrentLine(completeText, "MAXTOGW");
+		flightCapacityDto
+				.setMaxTakeOffGrossWeight(maxTakeOffGrossWeightDto.substring(startIndex, startIndex + 6).trim());
+
+		String maxLaunchGrossWeightDto = getPDFCurrentLine(completeText, "MAXLGW");
+		flightCapacityDto.setMaxLaunchGrossWeight(maxLaunchGrossWeightDto.substring(startIndex, startIndex + 6).trim());
+
+		String tankCapDto = getPDFCurrentLine(completeText, "TANKCAP");
+		flightCapacityDto.setTankCap(tankCapDto.substring(startIndex, startIndex + 6).trim());
+
+		String maxRmpwDto = getPDFCurrentLine(completeText, "MAXRMPW");
+		flightCapacityDto.setMaxRmpw(maxRmpwDto.substring(startIndex, startIndex + 6).trim());
+
+		flightPlanInfoDto.setCapacityDetails(flightCapacityDto);
+
 		return flightPlanInfoDto;
 	}
 
@@ -182,6 +217,7 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		flightPlanInfoDto = parseFlightOOOITimes(flightPlanInfoDto);
 		flightPlanInfoDto = parseFlightFuelDetails(flightPlanInfoDto);
 		flightPlanInfoDto = parseFlightWeightDetails(flightPlanInfoDto);
+		flightPlanInfoDto = parseFlightCapacityDetails(flightPlanInfoDto);
 		return flightPlanInfoDto;
 	}
 }
