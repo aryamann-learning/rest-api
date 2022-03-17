@@ -95,71 +95,20 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
 
 		int startIndex = 8;
-		String destinationInfo = lines[1];
-		FuelTime destinationDto = new FuelTime();
-		destinationDto.setTime(destinationInfo.substring(startIndex, startIndex + 5).trim());
-		destinationDto.setFuel(destinationInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String alternateInfo = lines[2];
-		FuelTime alternateDto = new FuelTime();
-		alternateDto.setTime(alternateInfo.substring(startIndex, startIndex + 5).trim());
-		alternateDto.setFuel(alternateInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String reserveInfo = lines[3];
-		FuelTime reserveDto = new FuelTime();
-		reserveDto.setTime(reserveInfo.substring(startIndex, startIndex + 5).trim());
-		reserveDto.setFuel(reserveInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String melFuelInfo = lines[4];
-		FuelTime melFuelDto = new FuelTime();
-		melFuelDto.setTime(melFuelInfo.substring(startIndex, startIndex + 5).trim());
-		melFuelDto.setFuel(melFuelInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String contInfo = lines[5];
-		FuelTime contDto = new FuelTime();
-		contDto.setTime(contInfo.substring(startIndex, startIndex + 5).trim());
-		contDto.setFuel(contInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String rqrInfo = lines[7];
-		FuelTime rqrDto = new FuelTime();
-		rqrDto.setTime(rqrInfo.substring(startIndex, startIndex + 5).trim());
-		rqrDto.setFuel(rqrInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String rpfInfo = lines[9];
-		FuelTime rpfDto = new FuelTime();
-		rpfDto.setTime(rpfInfo.substring(startIndex, startIndex + 5).trim());
-		rpfDto.setFuel(rpfInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String captInfo = lines[10];
-		FuelTime captDto = new FuelTime();
-		captDto.setTime(captInfo.substring(startIndex, startIndex + 5).trim());
-		captDto.setFuel(captInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String otherInfo = lines[11];
-		FuelTime otherDto = new FuelTime();
-		otherDto.setTime(otherInfo.substring(startIndex, startIndex + 5).trim());
-		otherDto.setFuel(otherInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String tkofInfo = lines[12];
-		FuelTime tkofDto = new FuelTime();
-		tkofDto.setTime(tkofInfo.substring(startIndex, startIndex + 5).trim());
-		tkofDto.setFuel(tkofInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String taxiInfo = lines[13];
-		FuelTime taxiDto = new FuelTime();
-		taxiDto.setTime(taxiInfo.substring(startIndex, startIndex + 5).trim());
-		taxiDto.setFuel(taxiInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String totalInfo = lines[14];
-		FuelTime totalDto = new FuelTime();
-		totalDto.setTime(totalInfo.substring(startIndex, startIndex + 5).trim());
-		totalDto.setFuel(totalInfo.substring(startIndex + 8, startIndex + 13).trim());
-
-		String fodInfo = lines[16];
-		FuelTime fodDto = new FuelTime();
-		fodDto.setTime(fodInfo.substring(startIndex, startIndex + 5).trim());
-		fodDto.setFuel(fodInfo.substring(startIndex + 8, startIndex + 13).trim());
-
+		FuelTime destinationDto = getFuelTime(lines, 1, startIndex);
+		FuelTime alternateDto = getFuelTime(lines, 2, startIndex);
+		FuelTime reserveDto = getFuelTime(lines, 3, startIndex);
+		FuelTime melFuelDto = getFuelTime(lines, 4, startIndex);
+		FuelTime contDto = getFuelTime(lines, 5, startIndex);
+		FuelTime rqrDto = getFuelTime(lines, 7, startIndex);
+		FuelTime rpfDto = getFuelTime(lines, 9, startIndex);
+		FuelTime captDto = getFuelTime(lines, 10, startIndex);
+		FuelTime otherDto = getFuelTime(lines, 11, startIndex);
+		FuelTime tkofDto = getFuelTime(lines, 12, startIndex);
+		FuelTime taxiDto = getFuelTime(lines, 13, startIndex);
+		FuelTime totalDto = getFuelTime(lines, 14, startIndex);
+		FuelTime fodDto = getFuelTime(lines, 16, startIndex);
+		
 		FlightFuelTimeDetailsDto flightFuelTimeDetailsDto = new FlightFuelTimeDetailsDto();
 		flightFuelTimeDetailsDto.setDestination(destinationDto);
 		flightFuelTimeDetailsDto.setAlternate(alternateDto);
@@ -176,6 +125,14 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		flightFuelTimeDetailsDto.setFod(fodDto);
 		flightPlanInfoDto.setFuelTimeDetails(flightFuelTimeDetailsDto);
 		return flightPlanInfoDto;
+	}
+
+	private FuelTime getFuelTime(String[] lines, int lineNumber, int startIndex) {
+		String fuelTimeInfo = lines[lineNumber];
+		FuelTime fuelTimeDto = new FuelTime();
+		fuelTimeDto.setTime(fuelTimeInfo.substring(startIndex, startIndex + 5).trim());
+		fuelTimeDto.setFuel(fuelTimeInfo.substring(startIndex + 8, startIndex + 13).trim());
+		return fuelTimeDto;
 	}
 
 	@Override
