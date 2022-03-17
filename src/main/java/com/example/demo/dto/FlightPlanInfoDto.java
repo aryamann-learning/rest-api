@@ -18,6 +18,7 @@ public class FlightPlanInfoDto {
 	private String schFltTime;
 	private String schBlkTime;
 	private FlightFuelTimeDetailsDto fuelTimeDetails;
+	private FlightWeightParametersDto weightDetails;
 	private String completeText;
 
 	public String getFlightNumber() {
@@ -154,6 +155,14 @@ public class FlightPlanInfoDto {
 
 	public void setFuelTimeDetails(FlightFuelTimeDetailsDto fuelTimeDetails) {
 		this.fuelTimeDetails = fuelTimeDetails;
+	}
+
+	public FlightWeightParametersDto getWeightDetails() {
+		return weightDetails;
+	}
+
+	public void setWeightDetails(FlightWeightParametersDto weightDetails) {
+		this.weightDetails = weightDetails;
 	}
 
 	public String getCompleteText() {

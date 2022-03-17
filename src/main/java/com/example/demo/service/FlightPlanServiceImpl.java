@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.constants.DemoConstants;
 import com.example.demo.dto.FlightFuelTimeDetailsDto;
 import com.example.demo.dto.FlightPlanInfoDto;
+import com.example.demo.dto.FlightWeightParametersDto;
 import com.example.demo.dto.FuelTime;
 
 @Service
@@ -34,6 +35,12 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		String fltPlan = completeText.substring(completeText.indexOf(containsText));
 		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
 		return lines[1];
+	}
+
+	private String getPDFCurrentLine(String completeText, String containsText) {
+		String fltPlan = completeText.substring(completeText.indexOf(containsText));
+		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
+		return lines[0];
 	}
 
 	private FlightPlanInfoDto parseFlightHeader(FlightPlanInfoDto flightPlanInfoDto) {
@@ -108,7 +115,7 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		FuelTime taxiDto = getFuelTime(lines, 13, startIndex);
 		FuelTime totalDto = getFuelTime(lines, 14, startIndex);
 		FuelTime fodDto = getFuelTime(lines, 16, startIndex);
-		
+
 		FlightFuelTimeDetailsDto flightFuelTimeDetailsDto = new FlightFuelTimeDetailsDto();
 		flightFuelTimeDetailsDto.setDestination(destinationDto);
 		flightFuelTimeDetailsDto.setAlternate(alternateDto);
@@ -135,12 +142,46 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		return fuelTimeDto;
 	}
 
+	private FlightPlanInfoDto parseFlightWeightDetails(FlightPlanInfoDto flightPlanInfoDto) {
+		String completeText = getPDFCompleteText();
+		FlightWeightParametersDto flightWeightParametersDto = new FlightWeightParametersDto();
+
+		String basicOperationWeightDto = getPDFCurrentLine(completeText, "BOW");
+		int startIndex = 10;
+		flightWeightParametersDto.setBasicOperationWeight(basicOperationWeightDto.substring(startIndex, startIndex + 6).trim());
+
+		String payLoadDto = getPDFCurrentLine(completeText, "PYLD");
+		flightWeightParametersDto.setPayLoad(payLoadDto.substring(startIndex, startIndex + 6).trim());
+
+		String zeroFuelWeightDto = getPDFCurrentLine(completeText, "ZFW");
+		flightWeightParametersDto.setZeroFuelWeight(zeroFuelWeightDto.substring(startIndex, startIndex + 6).trim());
+
+		String wbZeroFuelWeight = getPDFCurrentLine(completeText, "W/B ZFW");
+		flightWeightParametersDto.setWbZeroFuelWeight(wbZeroFuelWeight.substring(startIndex, startIndex + 6).trim());
+
+		String takeOff = getPDFCurrentLine(completeText, "TKOF");
+		flightWeightParametersDto.setTakeOff(takeOff.substring(startIndex, startIndex + 6).trim());
+
+		String takeOffGrossWeight = getPDFCurrentLine(completeText, "TOGW");
+		flightWeightParametersDto
+				.setTakeoffGrossWeight(takeOffGrossWeight.substring(startIndex, startIndex + 6).trim());
+
+		String launchGrossWeight = getPDFCurrentLine(completeText, "LGW");
+		flightWeightParametersDto.setLaunchGrossWeight(launchGrossWeight.substring(startIndex, startIndex + 6).trim());
+
+		String localMeanTimeGrossWeight = getPDFCurrentLine(completeText, "LMTOGW");
+		flightWeightParametersDto.setLocalMeanTimeGrossWeight(localMeanTimeGrossWeight.substring(startIndex, startIndex + 6).trim());
+		flightPlanInfoDto.setWeightDetails(flightWeightParametersDto);
+		return flightPlanInfoDto;
+	}
+
 	@Override
 	public FlightPlanInfoDto getFlightInfo() {
 		FlightPlanInfoDto flightPlanInfoDto = new FlightPlanInfoDto();
 		flightPlanInfoDto = parseFlightHeader(flightPlanInfoDto);
 		flightPlanInfoDto = parseFlightOOOITimes(flightPlanInfoDto);
 		flightPlanInfoDto = parseFlightFuelDetails(flightPlanInfoDto);
+		flightPlanInfoDto = parseFlightWeightDetails(flightPlanInfoDto);
 		return flightPlanInfoDto;
 	}
 }
