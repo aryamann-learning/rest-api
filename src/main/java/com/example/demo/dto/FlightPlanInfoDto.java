@@ -17,6 +17,7 @@ public class FlightPlanInfoDto {
 	private String schInTime;
 	private String schFltTime;
 	private String schBlkTime;
+	private FlightFuelTimeDetailsDto fuelTimeDetails;
 	private String completeText;
 
 	public String getFlightNumber() {
@@ -145,6 +146,14 @@ public class FlightPlanInfoDto {
 
 	public void setSchBlkTime(String schBlkTime) {
 		this.schBlkTime = schBlkTime;
+	}
+
+	public FlightFuelTimeDetailsDto getFuelTimeDetails() {
+		return fuelTimeDetails;
+	}
+
+	public void setFuelTimeDetails(FlightFuelTimeDetailsDto fuelTimeDetails) {
+		this.fuelTimeDetails = fuelTimeDetails;
 	}
 
 	public String getCompleteText() {

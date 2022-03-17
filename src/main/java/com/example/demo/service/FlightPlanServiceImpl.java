@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.constants.DemoConstants;
+import com.example.demo.dto.FlightFuelTimeDetailsDto;
 import com.example.demo.dto.FlightPlanInfoDto;
+import com.example.demo.dto.FuelTime;
 
 @Service
 public class FlightPlanServiceImpl implements FlightPlanService {
@@ -26,6 +28,12 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		} catch (IOException e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while processing pdf file");
 		}
+	}
+
+	private String getPDFNextLine(String completeText, String containsText) {
+		String fltPlan = completeText.substring(completeText.indexOf(containsText));
+		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
+		return lines[1];
 	}
 
 	private FlightPlanInfoDto parseFlightHeader(FlightPlanInfoDto flightPlanInfoDto) {
@@ -56,12 +64,6 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		return flightPlanInfoDto;
 	}
 
-	private String getPDFNextLine(String completeText, String containsText) {
-		String fltPlan = completeText.substring(completeText.indexOf(containsText));
-		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
-		return lines[1];
-	}
-
 	private FlightPlanInfoDto parseFlightOOOITimes(FlightPlanInfoDto flightPlanInfoDto) {
 		String completeText = getPDFCompleteText();
 
@@ -87,9 +89,101 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		return flightPlanInfoDto;
 	}
 
+	private FlightPlanInfoDto parseFlightFuelDetails(FlightPlanInfoDto flightPlanInfoDto) {
+		String completeText = getPDFCompleteText();
+		String fltPlan = completeText.substring(completeText.indexOf("TIME    FUEL"));
+		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
+
+		int startIndex = 8;
+		String destinationInfo = lines[1];
+		FuelTime destinationDto = new FuelTime();
+		destinationDto.setTime(destinationInfo.substring(startIndex, startIndex + 5).trim());
+		destinationDto.setFuel(destinationInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String alternateInfo = lines[2];
+		FuelTime alternateDto = new FuelTime();
+		alternateDto.setTime(alternateInfo.substring(startIndex, startIndex + 5).trim());
+		alternateDto.setFuel(alternateInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String reserveInfo = lines[3];
+		FuelTime reserveDto = new FuelTime();
+		reserveDto.setTime(reserveInfo.substring(startIndex, startIndex + 5).trim());
+		reserveDto.setFuel(reserveInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String melFuelInfo = lines[4];
+		FuelTime melFuelDto = new FuelTime();
+		melFuelDto.setTime(melFuelInfo.substring(startIndex, startIndex + 5).trim());
+		melFuelDto.setFuel(melFuelInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String contInfo = lines[5];
+		FuelTime contDto = new FuelTime();
+		contDto.setTime(contInfo.substring(startIndex, startIndex + 5).trim());
+		contDto.setFuel(contInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String rqrInfo = lines[7];
+		FuelTime rqrDto = new FuelTime();
+		rqrDto.setTime(rqrInfo.substring(startIndex, startIndex + 5).trim());
+		rqrDto.setFuel(rqrInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String rpfInfo = lines[9];
+		FuelTime rpfDto = new FuelTime();
+		rpfDto.setTime(rpfInfo.substring(startIndex, startIndex + 5).trim());
+		rpfDto.setFuel(rpfInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String captInfo = lines[10];
+		FuelTime captDto = new FuelTime();
+		captDto.setTime(captInfo.substring(startIndex, startIndex + 5).trim());
+		captDto.setFuel(captInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String otherInfo = lines[11];
+		FuelTime otherDto = new FuelTime();
+		otherDto.setTime(otherInfo.substring(startIndex, startIndex + 5).trim());
+		otherDto.setFuel(otherInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String tkofInfo = lines[12];
+		FuelTime tkofDto = new FuelTime();
+		tkofDto.setTime(tkofInfo.substring(startIndex, startIndex + 5).trim());
+		tkofDto.setFuel(tkofInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String taxiInfo = lines[13];
+		FuelTime taxiDto = new FuelTime();
+		taxiDto.setTime(taxiInfo.substring(startIndex, startIndex + 5).trim());
+		taxiDto.setFuel(taxiInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String totalInfo = lines[14];
+		FuelTime totalDto = new FuelTime();
+		totalDto.setTime(totalInfo.substring(startIndex, startIndex + 5).trim());
+		totalDto.setFuel(totalInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		String fodInfo = lines[16];
+		FuelTime fodDto = new FuelTime();
+		fodDto.setTime(fodInfo.substring(startIndex, startIndex + 5).trim());
+		fodDto.setFuel(fodInfo.substring(startIndex + 8, startIndex + 13).trim());
+
+		FlightFuelTimeDetailsDto flightFuelTimeDetailsDto = new FlightFuelTimeDetailsDto();
+		flightFuelTimeDetailsDto.setDestination(destinationDto);
+		flightFuelTimeDetailsDto.setAlternate(alternateDto);
+		flightFuelTimeDetailsDto.setReserve(reserveDto);
+		flightFuelTimeDetailsDto.setMelFuel(melFuelDto);
+		flightFuelTimeDetailsDto.setCont(contDto);
+		flightFuelTimeDetailsDto.setRqr(rqrDto);
+		flightFuelTimeDetailsDto.setRpf(rpfDto);
+		flightFuelTimeDetailsDto.setCapt(captDto);
+		flightFuelTimeDetailsDto.setOther(otherDto);
+		flightFuelTimeDetailsDto.setTkof(tkofDto);
+		flightFuelTimeDetailsDto.setTaxi(taxiDto);
+		flightFuelTimeDetailsDto.setTotal(totalDto);
+		flightFuelTimeDetailsDto.setFod(fodDto);
+		flightPlanInfoDto.setFuelTimeDetails(flightFuelTimeDetailsDto);
+		return flightPlanInfoDto;
+	}
+
 	@Override
 	public FlightPlanInfoDto getFlightInfo() {
 		FlightPlanInfoDto flightPlanInfoDto = new FlightPlanInfoDto();
-		return parseFlightOOOITimes(parseFlightHeader(flightPlanInfoDto));
+		flightPlanInfoDto = parseFlightHeader(flightPlanInfoDto);
+		flightPlanInfoDto = parseFlightOOOITimes(flightPlanInfoDto);
+		flightPlanInfoDto = parseFlightFuelDetails(flightPlanInfoDto);
+		return flightPlanInfoDto;
 	}
 }
