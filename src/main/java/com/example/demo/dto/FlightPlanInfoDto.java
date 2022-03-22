@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.util.ArrayList;
+
 public class FlightPlanInfoDto {
 	private String flightNumber;
 	private Double legDate;
@@ -19,7 +21,8 @@ public class FlightPlanInfoDto {
 	private String schBlkTime;
 	private FlightFuelTimeDetailsDto fuelTimeDetails;
 	private FlightWeightParametersDto weightDetails;
-	private FlightCapacityDto capacityDetails;
+	private FlightCapacityDetailsDto capacityDetails;
+	private ArrayList<String> remarksDetails;
 	private String completeText;
 
 	public String getFlightNumber() {
@@ -166,12 +169,20 @@ public class FlightPlanInfoDto {
 		this.weightDetails = weightDetails;
 	}
 
-	public FlightCapacityDto getCapacityDetails() {
+	public FlightCapacityDetailsDto getCapacityDetails() {
 		return capacityDetails;
 	}
 
-	public void setCapacityDetails(FlightCapacityDto capacityDetails) {
+	public void setCapacityDetails(FlightCapacityDetailsDto capacityDetails) {
 		this.capacityDetails = capacityDetails;
+	}
+
+	public ArrayList<String> getRemarksDetails() {
+		return remarksDetails;
+	}
+
+	public void setRemarksDetails(ArrayList<String> arrayList) {
+		this.remarksDetails = arrayList;
 	}
 
 	public String getCompleteText() {

@@ -4,12 +4,6 @@ public class FuelTime {
 	private String fuel;
 	private String time;
 
-	/*public FuelTime(String fuel, String time) {
-		super();
-		this.fuel = fuel;
-		this.time = time;
-	}*/
-
 	public String getFuel() {
 		return fuel;
 	}

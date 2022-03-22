@@ -1,6 +1,6 @@
 package com.example.demo.dto;
 
-public class FlightCapacityDto {
+public class FlightCapacityDetailsDto {
 
 	private String index;
 	private String maxZeroFuelWeight;

@@ -20,5 +20,9 @@ public class DemoConstants {
 	public static final String PDF_PATH = "D:\\Data\\fpsPlanOutputPDF.pdf";
 	public static final String LINE_SEPERATOR_REGEX = "\r\n|\r|\n";
 	public static final String FLT_HEADER = "FLT    DTE DEP   DEST  ALTN  EQUIP    ACFT NR  CRZ WND/C RTE";
+	public static final String LINE_DOT_SEPERATOR_REGEX = "\r\n.\r\n";
+	public static final String PAGE_NO_REGEX = "page \\d{1,}";
+
+
 
 }

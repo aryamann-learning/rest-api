@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.constants.DemoConstants;
+import com.example.demo.dto.FlightCapacityDetailsDto;
 import com.example.demo.dto.FlightFuelTimeDetailsDto;
-import com.example.demo.dto.FlightCapacityDto;
 import com.example.demo.dto.FlightPlanInfoDto;
 import com.example.demo.dto.FlightWeightParametersDto;
 import com.example.demo.dto.FuelTime;
@@ -98,45 +99,30 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 	}
 
 	private FlightPlanInfoDto parseFlightFuelDetails(FlightPlanInfoDto flightPlanInfoDto) {
-		String completeText = getPDFCompleteText();
-		String fltPlan = completeText.substring(completeText.indexOf("TIME    FUEL"));
-		String[] lines = fltPlan.split(DemoConstants.LINE_SEPERATOR_REGEX);
-
-		int startIndex = 8;
-		FuelTime destinationDto = getFuelTime(lines, 1, startIndex);
-		FuelTime alternateDto = getFuelTime(lines, 2, startIndex);
-		FuelTime reserveDto = getFuelTime(lines, 3, startIndex);
-		FuelTime melFuelDto = getFuelTime(lines, 4, startIndex);
-		FuelTime contDto = getFuelTime(lines, 5, startIndex);
-		FuelTime rqrDto = getFuelTime(lines, 7, startIndex);
-		FuelTime rpfDto = getFuelTime(lines, 9, startIndex);
-		FuelTime captDto = getFuelTime(lines, 10, startIndex);
-		FuelTime otherDto = getFuelTime(lines, 11, startIndex);
-		FuelTime tkofDto = getFuelTime(lines, 12, startIndex);
-		FuelTime taxiDto = getFuelTime(lines, 13, startIndex);
-		FuelTime totalDto = getFuelTime(lines, 14, startIndex);
-		FuelTime fodDto = getFuelTime(lines, 16, startIndex);
-
 		FlightFuelTimeDetailsDto flightFuelTimeDetailsDto = new FlightFuelTimeDetailsDto();
-		flightFuelTimeDetailsDto.setDestination(destinationDto);
-		flightFuelTimeDetailsDto.setAlternate(alternateDto);
-		flightFuelTimeDetailsDto.setReserve(reserveDto);
-		flightFuelTimeDetailsDto.setMelFuel(melFuelDto);
-		flightFuelTimeDetailsDto.setCont(contDto);
-		flightFuelTimeDetailsDto.setRqr(rqrDto);
-		flightFuelTimeDetailsDto.setRpf(rpfDto);
-		flightFuelTimeDetailsDto.setCapt(captDto);
-		flightFuelTimeDetailsDto.setOther(otherDto);
-		flightFuelTimeDetailsDto.setTkof(tkofDto);
-		flightFuelTimeDetailsDto.setTaxi(taxiDto);
-		flightFuelTimeDetailsDto.setTotal(totalDto);
-		flightFuelTimeDetailsDto.setFod(fodDto);
+		flightFuelTimeDetailsDto.setDestination(getFuelTime("DEST"));
+		flightFuelTimeDetailsDto.setAlternate(getFuelTime("ALTN"));
+		flightFuelTimeDetailsDto.setReserve(getFuelTime("RES"));
+		flightFuelTimeDetailsDto.setMelFuel(getFuelTime("MEL"));
+		flightFuelTimeDetailsDto.setCont(getFuelTime("CONT"));
+		flightFuelTimeDetailsDto.setRqr(getFuelTime("-RQR-"));
+		flightFuelTimeDetailsDto.setRpf(getFuelTime("RPF"));
+		flightFuelTimeDetailsDto.setCapt(getFuelTime("CAPT"));
+		flightFuelTimeDetailsDto.setOther(getFuelTime("OTHER"));
+		flightFuelTimeDetailsDto.setTkof(getFuelTime("-TKOF-"));
+		flightFuelTimeDetailsDto.setTaxi(getFuelTime("TAXI"));
+		flightFuelTimeDetailsDto.setTotal(getFuelTime("TOTAL"));
+		flightFuelTimeDetailsDto.setFod(getFuelTime("FOD"));
 		flightPlanInfoDto.setFuelTimeDetails(flightFuelTimeDetailsDto);
 		return flightPlanInfoDto;
 	}
 
-	private FuelTime getFuelTime(String[] lines, int lineNumber, int startIndex) {
-		String fuelTimeInfo = lines[lineNumber];
+	private FuelTime getFuelTime(String containsText) {
+		int startIndex = 8;
+		String completeText = getPDFCompleteText();
+		String fuelTime = completeText.substring(completeText.indexOf("TIME    FUEL"),
+				completeText.indexOf("REMARKS:"));
+		String fuelTimeInfo = getPDFCurrentLine(fuelTime, containsText);
 		FuelTime fuelTimeDto = new FuelTime();
 		fuelTimeDto.setTime(fuelTimeInfo.substring(startIndex, startIndex + 5).trim());
 		fuelTimeDto.setFuel(fuelTimeInfo.substring(startIndex + 8, startIndex + 13).trim());
@@ -180,33 +166,48 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 
 	private FlightPlanInfoDto parseFlightCapacityDetails(FlightPlanInfoDto flightPlanInfoDto) {
 		String completeText = getPDFCompleteText();
-		FlightCapacityDto flightCapacityDto = new FlightCapacityDto();
+		FlightCapacityDetailsDto flightCapacityDetailsDto = new FlightCapacityDetailsDto();
 
 		String indexDto = getPDFCurrentLine(completeText, "INDEX");
 		int startIndex = 9;
-		flightCapacityDto.setIndex(indexDto.substring(startIndex, startIndex + 6).trim());
+		flightCapacityDetailsDto.setIndex(indexDto.substring(startIndex, startIndex + 6).trim());
 
 		String maxZeroFuelWeightDto = getPDFCurrentLine(completeText, "MAXZFW");
-		flightCapacityDto.setMaxZeroFuelWeight(maxZeroFuelWeightDto.substring(startIndex, startIndex + 6).trim());
+		flightCapacityDetailsDto
+				.setMaxZeroFuelWeight(maxZeroFuelWeightDto.substring(startIndex, startIndex + 6).trim());
 
 		String minFltwDto = getPDFCurrentLine(completeText, "MINFLTW");
-		flightCapacityDto.setMinFltw(minFltwDto.substring(startIndex, startIndex + 6).trim());
+		flightCapacityDetailsDto.setMinFltw(minFltwDto.substring(startIndex, startIndex + 6).trim());
 
 		String maxTakeOffGrossWeightDto = getPDFCurrentLine(completeText, "MAXTOGW");
-		flightCapacityDto
+		flightCapacityDetailsDto
 				.setMaxTakeOffGrossWeight(maxTakeOffGrossWeightDto.substring(startIndex, startIndex + 6).trim());
 
 		String maxLaunchGrossWeightDto = getPDFCurrentLine(completeText, "MAXLGW");
-		flightCapacityDto.setMaxLaunchGrossWeight(maxLaunchGrossWeightDto.substring(startIndex, startIndex + 6).trim());
+		flightCapacityDetailsDto
+				.setMaxLaunchGrossWeight(maxLaunchGrossWeightDto.substring(startIndex, startIndex + 6).trim());
 
 		String tankCapDto = getPDFCurrentLine(completeText, "TANKCAP");
-		flightCapacityDto.setTankCap(tankCapDto.substring(startIndex, startIndex + 6).trim());
+		flightCapacityDetailsDto.setTankCap(tankCapDto.substring(startIndex, startIndex + 6).trim());
 
 		String maxRmpwDto = getPDFCurrentLine(completeText, "MAXRMPW");
-		flightCapacityDto.setMaxRmpw(maxRmpwDto.substring(startIndex, startIndex + 6).trim());
+		flightCapacityDetailsDto.setMaxRmpw(maxRmpwDto.substring(startIndex, startIndex + 6).trim());
 
-		flightPlanInfoDto.setCapacityDetails(flightCapacityDto);
+		flightPlanInfoDto.setCapacityDetails(flightCapacityDetailsDto);
 
+		return flightPlanInfoDto;
+	}
+
+	private FlightPlanInfoDto parseFlightRemarksDetails(FlightPlanInfoDto flightPlanInfoDto) {
+		String completeText = getPDFCompleteText();
+		String remarksText = completeText.substring(completeText.indexOf("REMARKS:"),
+				completeText.indexOf("ATIS/CLEARANCE") - 6);
+		String[] remarks = remarksText.split(DemoConstants.LINE_DOT_SEPERATOR_REGEX);
+		ArrayList<String> result = new ArrayList<>();
+		for (int i = 1; i < remarks.length; i++) {
+			result.add(remarks[i].replaceAll(DemoConstants.PAGE_NO_REGEX, ""));
+		}
+		flightPlanInfoDto.setRemarksDetails(result);
 		return flightPlanInfoDto;
 	}
 
@@ -218,6 +219,7 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 		flightPlanInfoDto = parseFlightFuelDetails(flightPlanInfoDto);
 		flightPlanInfoDto = parseFlightWeightDetails(flightPlanInfoDto);
 		flightPlanInfoDto = parseFlightCapacityDetails(flightPlanInfoDto);
+		flightPlanInfoDto = parseFlightRemarksDetails(flightPlanInfoDto);
 		return flightPlanInfoDto;
 	}
 }
