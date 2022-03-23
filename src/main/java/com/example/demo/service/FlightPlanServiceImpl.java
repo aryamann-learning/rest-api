@@ -201,7 +201,7 @@ public class FlightPlanServiceImpl implements FlightPlanService {
 	private FlightPlanInfoDto parseFlightRemarksDetails(FlightPlanInfoDto flightPlanInfoDto) {
 		String completeText = getPDFCompleteText();
 		String remarksText = completeText.substring(completeText.indexOf("REMARKS:"),
-				completeText.indexOf("ATIS/CLEARANCE") - 6);
+				completeText.indexOf("(FPL-FDX1449-IS"));
 		String[] remarks = remarksText.split(DemoConstants.LINE_DOT_SEPERATOR_REGEX);
 		ArrayList<String> result = new ArrayList<>();
 		for (int i = 1; i < remarks.length; i++) {
