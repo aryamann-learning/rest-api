@@ -1,6 +1,8 @@
 package com.example.demo.dto;
 
 public class AirportWeatherForecastDto {
+	private String airport;
+	private String hourlyForecast;
 	private String temperature;
 	private String windDirection;
 	private String windSpeed;
@@ -8,6 +10,22 @@ public class AirportWeatherForecastDto {
 	private String precipChance;
 	private String ceilingHeight;
 	private String visibility;
+
+	public String getAirport() {
+		return airport;
+	}
+
+	public void setAirport(String airport) {
+		this.airport = airport;
+	}
+
+	public String getHourlyForecast() {
+		return hourlyForecast;
+	}
+
+	public void setHourlyForecast(String hourlyForecast) {
+		this.hourlyForecast = hourlyForecast;
+	}
 
 	public String getTemperature() {
 		return temperature;

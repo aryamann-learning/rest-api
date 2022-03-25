@@ -42,13 +42,20 @@ public class BlendProductsServiceImpl implements BlendProductService {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stream));) {
 			line = br.readLine();
 			line = br.readLine(); // skip 1st two lines
-			line = br.readLine(); 
+			line = br.readLine();
+			airportWeatherForecastDto.setAirport(line);
+			line = br.readLine();
+
 			while (line != null) {
 				if (line.trim().isEmpty()) {
 					airportsWeatherForecast.add(airportWeatherForecastDto);
 					airportWeatherForecastDto = new AirportWeatherForecastDto();
+					line = br.readLine();
+					airportWeatherForecastDto.setAirport(line);
 				} else {
-					if (line.contains("TMP")) {
+					if (line.contains("UTC")) {
+						airportWeatherForecastDto.setHourlyForecast(line);
+					} else if (line.contains("TMP")) {
 						airportWeatherForecastDto.setTemperature(line);
 					} else if (line.contains("WDR")) {
 						airportWeatherForecastDto.setWindDirection(line);
