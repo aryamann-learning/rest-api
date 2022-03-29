@@ -2,12 +2,13 @@ package com.example.demo.service;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.AirportWeatherForecastDto;
+import com.example.demo.dto.HourlyWeatherDataDto;
 
 @Service
 public class BlendProductsServiceImpl implements BlendProductService {
 
+	public static final String SPLIT_BY_3CHARS_REGEX = "(?<=\\G.{3})";
 	@Autowired
 	private WebClient webClient;
 
@@ -28,56 +30,74 @@ public class BlendProductsServiceImpl implements BlendProductService {
 	}
 
 	@Override
-	public List<AirportWeatherForecastDto> getAirportWeatherInfo(String date, String cc) {
+	public Map<String, List<HourlyWeatherDataDto>> getAirportWeatherInfo(String date, String cc) {
 		String url = getUrl(date, cc);
 		String response = getWebClientResponse(url);
 		return parseBlendText(response);
 	}
 
-	private List<AirportWeatherForecastDto> parseBlendText(String response) {
+	private Map<String, List<HourlyWeatherDataDto>> parseBlendText(String response) {
+		String[] utc = null, tmp = null, wdr = null, wsp = null, gst = null, p01 = null, cig = null, vis = null;
 		String line = "";
-		List<AirportWeatherForecastDto> airportsWeatherForecast = new ArrayList<>();
-		AirportWeatherForecastDto airportWeatherForecastDto = new AirportWeatherForecastDto();
+		LinkedHashMap<String, List<HourlyWeatherDataDto>> mapHourlyWeatherData = new LinkedHashMap<>();
 		try (InputStream stream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
 				BufferedReader br = new BufferedReader(new InputStreamReader(stream));) {
 			line = br.readLine();
 			line = br.readLine(); // skip 1st two lines
-			line = br.readLine();
-			airportWeatherForecastDto.setAirport(line);
-			line = br.readLine();
-
-			while (line != null) {
-				if (line.trim().isEmpty()) {
-					airportsWeatherForecast.add(airportWeatherForecastDto);
-					airportWeatherForecastDto = new AirportWeatherForecastDto();
-					line = br.readLine();
-					airportWeatherForecastDto.setAirport(line);
+			line = br.readLine().trim();
+			String airport = line.substring(0, line.indexOf(" "));
+			while ((line = br.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty()) {
+					List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(utc, tmp, wdr, wsp, gst, p01, cig,vis);
+					mapHourlyWeatherData.put(airport, lstHourlyData);
+					if ((line = br.readLine()) != null) {
+						line = line.trim();
+						airport = line.substring(0, line.indexOf(" "));
+					}
 				} else {
 					if (line.contains("UTC")) {
-						airportWeatherForecastDto.setHourlyForecast(line);
+						utc = getHourlyData(line);
 					} else if (line.contains("TMP")) {
-						airportWeatherForecastDto.setTemperature(line);
+						tmp = getHourlyData(line);
 					} else if (line.contains("WDR")) {
-						airportWeatherForecastDto.setWindDirection(line);
+						wdr = getHourlyData(line);
 					} else if (line.contains("WSP")) {
-						airportWeatherForecastDto.setWindSpeed(line);
+						wsp = getHourlyData(line);
 					} else if (line.contains("GST")) {
-						airportWeatherForecastDto.setWindGust(line);
+						gst = getHourlyData(line);
 					} else if (line.contains("P01")) {
-						airportWeatherForecastDto.setPrecipChance(line);
+						p01 = getHourlyData(line);
 					} else if (line.contains("CIG")) {
-						airportWeatherForecastDto.setCeilingHeight(line);
+						cig = getHourlyData(line);
 					} else if (line.contains("VIS")) {
-						airportWeatherForecastDto.setVisibility(line);
+						vis = getHourlyData(line);
 					}
 				}
-
-				line = br.readLine();
 			}
-		} catch (IOException e) {
+
+		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		return airportsWeatherForecast;
+		return mapHourlyWeatherData;
+	}
+
+	private List<HourlyWeatherDataDto> getLstHourlyData(String[] utc, String[] tmp, String[] wdr, String[] wsp,
+			String[] gst, String[] p01, String[] cig, String[] vis) {
+		List<HourlyWeatherDataDto> lstHourlyData = new ArrayList<>();
+		for (int i = 0; i < utc.length; i++) {
+			HourlyWeatherDataDto hourlyWeatherDataDto = new HourlyWeatherDataDto();
+			hourlyWeatherDataDto.setHourlyForecast(utc[i].trim());
+			hourlyWeatherDataDto.setTemperature(tmp[i].trim());
+			hourlyWeatherDataDto.setWindDirection(wdr[i].trim());
+			hourlyWeatherDataDto.setWindSpeed(wsp[i].trim());
+			hourlyWeatherDataDto.setWindGust(gst[i].trim());
+			hourlyWeatherDataDto.setPrecipChance(p01[i].trim());
+			hourlyWeatherDataDto.setCeilingHeight(cig[i].trim());
+			hourlyWeatherDataDto.setVisibility(vis[i].trim());
+			lstHourlyData.add(hourlyWeatherDataDto);
+		}
+		return lstHourlyData;
 	}
 
 	private String getUrl(String date, String cc) {
@@ -85,4 +105,10 @@ public class BlendProductsServiceImpl implements BlendProductService {
 		url = url.replace(":date", date).replace(":cc", cc);
 		return url;
 	}
+
+	private String[] getHourlyData(String line) {
+		String arrLine = line.substring(3, line.length()).trim();
+		return arrLine.split(SPLIT_BY_3CHARS_REGEX);
+	}
+
 }
