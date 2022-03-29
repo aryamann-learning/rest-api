@@ -1,76 +1,76 @@
 package com.example.demo.dto;
 
 public class HourlyWeatherDataDto {
-	private String hourlyForecast;
-	private String temperature;
-	private String windDirection;
-	private String windSpeed;
-	private String windGust;
-	private String precipChance;
-	private String ceilingHeight;
-	private String visibility;
+	private Integer hourlyForecast;
+	private Integer temperature;
+	private Integer windDirection;
+	private Integer windSpeed;
+	private Integer windGust;
+	private Integer precipChance;
+	private Integer ceilingHeight;
+	private Integer visibility;
 
-	public String getHourlyForecast() {
+	public Integer getHourlyForecast() {
 		return hourlyForecast;
 	}
 
-	public void setHourlyForecast(String hourlyForecast) {
+	public void setHourlyForecast(Integer hourlyForecast) {
 		this.hourlyForecast = hourlyForecast;
 	}
 
-	public String getTemperature() {
+	public Integer getTemperature() {
 		return temperature;
 	}
 
-	public void setTemperature(String temperature) {
+	public void setTemperature(Integer temperature) {
 		this.temperature = temperature;
 	}
 
-	public String getWindDirection() {
+	public Integer getWindDirection() {
 		return windDirection;
 	}
 
-	public void setWindDirection(String windDirection) {
+	public void setWindDirection(Integer windDirection) {
 		this.windDirection = windDirection;
 	}
 
-	public String getWindSpeed() {
+	public Integer getWindSpeed() {
 		return windSpeed;
 	}
 
-	public void setWindSpeed(String windSpeed) {
+	public void setWindSpeed(Integer windSpeed) {
 		this.windSpeed = windSpeed;
 	}
 
-	public String getWindGust() {
+	public Integer getWindGust() {
 		return windGust;
 	}
 
-	public void setWindGust(String windGust) {
+	public void setWindGust(Integer windGust) {
 		this.windGust = windGust;
 	}
 
-	public String getPrecipChance() {
+	public Integer getPrecipChance() {
 		return precipChance;
 	}
 
-	public void setPrecipChance(String precipChance) {
+	public void setPrecipChance(Integer precipChance) {
 		this.precipChance = precipChance;
 	}
 
-	public String getCeilingHeight() {
+	public Integer getCeilingHeight() {
 		return ceilingHeight;
 	}
 
-	public void setCeilingHeight(String ceilingHeight) {
+	public void setCeilingHeight(Integer ceilingHeight) {
 		this.ceilingHeight = ceilingHeight;
 	}
 
-	public String getVisibility() {
+	public Integer getVisibility() {
 		return visibility;
 	}
 
-	public void setVisibility(String visibility) {
+	public void setVisibility(Integer visibility) {
 		this.visibility = visibility;
 	}
 

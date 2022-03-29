@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.dao.AirportweatherDao;
 import com.example.demo.dto.HourlyWeatherDataDto;
 
 @Service
@@ -24,6 +25,8 @@ public class BlendProductsServiceImpl implements BlendProductService {
 	public static final String SPLIT_BY_3CHARS_REGEX = "(?<=\\G.{3})";
 	@Autowired
 	private WebClient webClient;
+	@Autowired
+	private AirportweatherDao daoAirportWeather;
 
 	private String getWebClientResponse(String url) {
 		return webClient.get().uri(url).retrieve().bodyToMono(String.class).block();
@@ -33,10 +36,10 @@ public class BlendProductsServiceImpl implements BlendProductService {
 	public Map<String, List<HourlyWeatherDataDto>> getAirportWeatherInfo(String date, String cc) {
 		String url = getUrl(date, cc);
 		String response = getWebClientResponse(url);
-		return parseBlendText(response);
+		return parseBlendText(response, date);
 	}
 
-	private Map<String, List<HourlyWeatherDataDto>> parseBlendText(String response) {
+	private Map<String, List<HourlyWeatherDataDto>> parseBlendText(String response, String date) {
 		String[] utc = null, tmp = null, wdr = null, wsp = null, gst = null, p01 = null, cig = null, vis = null;
 		String line = "";
 		LinkedHashMap<String, List<HourlyWeatherDataDto>> mapHourlyWeatherData = new LinkedHashMap<>();
@@ -49,7 +52,8 @@ public class BlendProductsServiceImpl implements BlendProductService {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.isEmpty()) {
-					List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(utc, tmp, wdr, wsp, gst, p01, cig,vis);
+					List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(airport, date, utc, tmp, wdr, wsp, gst,
+							p01, cig, vis);
 					mapHourlyWeatherData.put(airport, lstHourlyData);
 					if ((line = br.readLine()) != null) {
 						line = line.trim();
@@ -82,20 +86,22 @@ public class BlendProductsServiceImpl implements BlendProductService {
 		return mapHourlyWeatherData;
 	}
 
-	private List<HourlyWeatherDataDto> getLstHourlyData(String[] utc, String[] tmp, String[] wdr, String[] wsp,
-			String[] gst, String[] p01, String[] cig, String[] vis) {
+	private List<HourlyWeatherDataDto> getLstHourlyData(String airport, String date, String[] utc, String[] tmp,
+			String[] wdr, String[] wsp, String[] gst, String[] p01, String[] cig, String[] vis) {
 		List<HourlyWeatherDataDto> lstHourlyData = new ArrayList<>();
 		for (int i = 0; i < utc.length; i++) {
 			HourlyWeatherDataDto hourlyWeatherDataDto = new HourlyWeatherDataDto();
-			hourlyWeatherDataDto.setHourlyForecast(utc[i].trim());
-			hourlyWeatherDataDto.setTemperature(tmp[i].trim());
-			hourlyWeatherDataDto.setWindDirection(wdr[i].trim());
-			hourlyWeatherDataDto.setWindSpeed(wsp[i].trim());
-			hourlyWeatherDataDto.setWindGust(gst[i].trim());
-			hourlyWeatherDataDto.setPrecipChance(p01[i].trim());
-			hourlyWeatherDataDto.setCeilingHeight(cig[i].trim());
-			hourlyWeatherDataDto.setVisibility(vis[i].trim());
+			hourlyWeatherDataDto.setHourlyForecast(Integer.parseInt(utc[i].trim()));
+			hourlyWeatherDataDto.setTemperature(Integer.parseInt(tmp[i].trim()));
+			hourlyWeatherDataDto.setWindDirection(Integer.parseInt(wdr[i].trim()));
+			hourlyWeatherDataDto.setWindSpeed(Integer.parseInt(wsp[i].trim()));
+			hourlyWeatherDataDto.setWindGust(Integer.parseInt(gst[i].trim()));
+			hourlyWeatherDataDto.setPrecipChance(Integer.parseInt(p01[i].trim()));
+			hourlyWeatherDataDto.setCeilingHeight(Integer.parseInt(cig[i].trim()));
+			hourlyWeatherDataDto.setVisibility(Integer.parseInt(vis[i].trim()));
 			lstHourlyData.add(hourlyWeatherDataDto);
+			daoAirportWeather.saveAirportWeatherData(airport, Integer.parseInt(date),
+					hourlyWeatherDataDto);
 		}
 		return lstHourlyData;
 	}
@@ -107,8 +113,7 @@ public class BlendProductsServiceImpl implements BlendProductService {
 	}
 
 	private String[] getHourlyData(String line) {
-		String arrLine = line.substring(3, line.length()).trim();
+		String arrLine = line.substring(4, line.length());
 		return arrLine.split(SPLIT_BY_3CHARS_REGEX);
 	}
-
 }
