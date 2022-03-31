@@ -5,6 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,13 +35,15 @@ public class BlendProductsServiceImpl implements BlendProductService {
 	}
 
 	@Override
-	public Map<String, List<HourlyWeatherDataDto>> getAirportWeatherInfo(String date, String cc) {
-		String url = getUrl(date, cc);
+	public Map<String, List<HourlyWeatherDataDto>> getAirportWeatherInfo(LocalDate startDate, String cc) {
+		String url = getUrl(startDate, cc);
 		String response = getWebClientResponse(url);
-		return parseBlendText(response, date);
+		LocalDate endDate = getDate(startDate);
+		return parseBlendText(response, startDate, endDate);
 	}
 
-	private Map<String, List<HourlyWeatherDataDto>> parseBlendText(String response, String date) {
+	private Map<String, List<HourlyWeatherDataDto>> parseBlendText(String response, LocalDate startDate,
+			LocalDate endDate) {
 		String[] utc = null, tmp = null, wdr = null, wsp = null, gst = null, p01 = null, cig = null, vis = null;
 		String line = "";
 		LinkedHashMap<String, List<HourlyWeatherDataDto>> mapHourlyWeatherData = new LinkedHashMap<>();
@@ -52,29 +56,30 @@ public class BlendProductsServiceImpl implements BlendProductService {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.isEmpty()) {
-					List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(airport, date, utc, tmp, wdr, wsp, gst,
-							p01, cig, vis);
+					List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(airport, startDate, endDate, utc, tmp,
+							wdr, wsp, gst, p01, cig, vis);
 					mapHourlyWeatherData.put(airport, lstHourlyData);
 					if ((line = br.readLine()) != null) {
 						line = line.trim();
 						airport = line.substring(0, line.indexOf(" "));
 					}
+					break;
 				} else {
 					if (line.contains("UTC")) {
 						utc = getHourlyData(line);
-					} else if (line.contains("TMP")) {
+					} else if (line.startsWith("TMP")) {
 						tmp = getHourlyData(line);
-					} else if (line.contains("WDR")) {
+					} else if (line.startsWith("WDR")) {
 						wdr = getHourlyData(line);
-					} else if (line.contains("WSP")) {
+					} else if (line.startsWith("WSP")) {
 						wsp = getHourlyData(line);
-					} else if (line.contains("GST")) {
+					} else if (line.startsWith("GST")) {
 						gst = getHourlyData(line);
-					} else if (line.contains("P01")) {
+					} else if (line.startsWith("P01")) {
 						p01 = getHourlyData(line);
-					} else if (line.contains("CIG")) {
+					} else if (line.startsWith("CIG")) {
 						cig = getHourlyData(line);
-					} else if (line.contains("VIS")) {
+					} else if (line.startsWith("VIS")) {
 						vis = getHourlyData(line);
 					}
 				}
@@ -86,9 +91,11 @@ public class BlendProductsServiceImpl implements BlendProductService {
 		return mapHourlyWeatherData;
 	}
 
-	private List<HourlyWeatherDataDto> getLstHourlyData(String airport, String date, String[] utc, String[] tmp,
-			String[] wdr, String[] wsp, String[] gst, String[] p01, String[] cig, String[] vis) {
+	private List<HourlyWeatherDataDto> getLstHourlyData(String airport, LocalDate startDate, LocalDate endDate,
+			String[] utc, String[] tmp, String[] wdr, String[] wsp, String[] gst, String[] p01, String[] cig,
+			String[] vis) {
 		List<HourlyWeatherDataDto> lstHourlyData = new ArrayList<>();
+		LocalDate date = startDate;
 		for (int i = 0; i < utc.length; i++) {
 			HourlyWeatherDataDto hourlyWeatherDataDto = new HourlyWeatherDataDto();
 			hourlyWeatherDataDto.setHourlyForecast(Integer.parseInt(utc[i].trim()));
@@ -100,13 +107,17 @@ public class BlendProductsServiceImpl implements BlendProductService {
 			hourlyWeatherDataDto.setCeilingHeight(Integer.parseInt(cig[i].trim()));
 			hourlyWeatherDataDto.setVisibility(Integer.parseInt(vis[i].trim()));
 			lstHourlyData.add(hourlyWeatherDataDto);
-			daoAirportWeather.saveAirportWeatherData(airport, Integer.parseInt(date),
-					hourlyWeatherDataDto);
+			daoAirportWeather.saveAirportWeatherData(airport, date, hourlyWeatherDataDto);
+			if (hourlyWeatherDataDto.getHourlyForecast() == 23) {
+				date = endDate;
+			}
 		}
 		return lstHourlyData;
 	}
 
-	private String getUrl(String date, String cc) {
+	private String getUrl(LocalDate startDate, String cc) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		String date = startDate.format(formatter);
 		String url = "https://nomads.ncep.noaa.gov/pub/data/nccf/com/blend/prod/blend.:date/:cc/text/blend_nbhtx.t:ccz";
 		url = url.replace(":date", date).replace(":cc", cc);
 		return url;
@@ -115,5 +126,12 @@ public class BlendProductsServiceImpl implements BlendProductService {
 	private String[] getHourlyData(String line) {
 		String arrLine = line.substring(4, line.length());
 		return arrLine.split(SPLIT_BY_3CHARS_REGEX);
+	}
+
+	private LocalDate getDate(LocalDate startDate) {
+		String formattedDate = startDate.plusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		LocalDate localDate = LocalDate.parse(formattedDate, formatter);
+		return localDate;
 	}
 }
