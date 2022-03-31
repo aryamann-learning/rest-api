@@ -63,7 +63,6 @@ public class BlendProductsServiceImpl implements BlendProductService {
 						line = line.trim();
 						airport = line.substring(0, line.indexOf(" "));
 					}
-					break;
 				} else {
 					if (line.contains("UTC")) {
 						utc = getHourlyData(line);
