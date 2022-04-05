@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.time.LocalDate;
+
 public class HourlyWeatherDataDto {
 	private Integer hourlyForecast;
 	private Integer temperature;
@@ -9,6 +11,7 @@ public class HourlyWeatherDataDto {
 	private Integer precipChance;
 	private Integer ceilingHeight;
 	private Integer visibility;
+	private LocalDate date;
 
 	public Integer getHourlyForecast() {
 		return hourlyForecast;
@@ -72,6 +75,14 @@ public class HourlyWeatherDataDto {
 
 	public void setVisibility(Integer visibility) {
 		this.visibility = visibility;
+	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
 	}
 
 }
