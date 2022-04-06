@@ -38,7 +38,7 @@ public class AirportWeatherDetailsServiceImpl implements AirportWeatherDetailsSe
 
 	@Override
 	public Map<String, List<HourlyWeatherDataDto>> getAirportWeatherInfo(LocalDate startDate, String cc) {
-		ExecutorService executorService = Executors.newFixedThreadPool(5);
+		ExecutorService executorService = Executors.newFixedThreadPool(25);
 		String url = getUrl(startDate, cc);
 		String response = getWebClientResponse(url);
 		LocalDate endDate = getDate(startDate);
@@ -76,6 +76,9 @@ public class AirportWeatherDetailsServiceImpl implements AirportWeatherDetailsSe
 				BufferedReader br = new BufferedReader(new InputStreamReader(stream));) {
 			line = br.readLine().trim();
 			String airport = line.substring(0, line.indexOf(" "));
+			if(airport.length()!=4 || !airport.matches("[a-zA-Z]+")){
+				return;
+			}
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.contains("UTC")) {
