@@ -29,10 +29,11 @@ public class AirportWeatherDaoImpl implements AirportweatherDao {
 
 	@Override
 	public void saveAirportWeatherData(String airport, LocalDate date, HourlyWeatherDataDto dto) {
-		final String insertQuery = "insert into airport_weather_details (airport,apt_date,apt_hour,apt_tmp,apt_wdr,apt_wsp,apt_gst,apt_p01,apt_cig,apt_vis) "
+		final String insertQuery = "insert into FPS_WEATHER_DATA(AIRPORT_ICAO_CD,READING_DT,READING_HOUR_NBR,TEMPERATURE_NBR,"
+				+ "WIND_DIRECTION_NBR, WIND_SPEED_NBR,WIND_GUST_NBR,PERCIPITATION_CHANGE_PCT,CEILING_HEIGHT_NBR,VISIBILITY_NBR) "
 				+ "values (:airport,:date,:hour,:tmp,:wdr,:wsp,:gst,:p01,:cig,:vis)";
-		final String updateQuery = "update airport_weather_details set  apt_tmp = :tmp, apt_wdr= :wdr,"
-				+ "apt_wsp = :wsp, apt_gst = :gst, apt_p01 = :p01, apt_cig = :cig, apt_vis = :vis where airport= :airport and apt_date= :date and apt_hour = :hour";
+		final String updateQuery = "update FPS_WEATHER_DATA set  TEMPERATURE_NBR = :tmp, WIND_DIRECTION_NBR= :wdr,"
+				+ "WIND_SPEED_NBR = :wsp, WIND_GUST_NBR = :gst, PERCIPITATION_CHANGE_PCT = :p01, CEILING_HEIGHT_NBR = :cig, VISIBILITY_NBR = :vis where AIRPORT_ICAO_CD= :airport and READING_DT= :date and READING_HOUR_NBR = :hour";
 		LinkedHashMap<String, Object> namedParameters = new LinkedHashMap<>();
 		namedParameters.put("airport", airport);
 		namedParameters.put("date", Date.valueOf(date));
@@ -56,8 +57,12 @@ public class AirportWeatherDaoImpl implements AirportweatherDao {
 	@Override
 	public void saveAirportWeatherData(String airport, List<HourlyWeatherDataDto> lst) {
 
-		final String insertQuery = "insert into airport_weather_details (airport,apt_date,apt_hour,apt_tmp,apt_wdr,apt_wsp,apt_gst,apt_p01,apt_cig,apt_vis) "
-				+ "values (?,?,?,?,?,?,?,?,?,?)";
+		final String insertQuery = "insert into FPS_WEATHER_DATA(AIRPORT_ICAO_CD,READING_DT,READING_HOUR_NBR,TEMPERATURE_NBR,"
+				+ "WIND_DIRECTION_NBR, WIND_SPEED_NBR,WIND_GUST_NBR,PERCIPITATION_CHANGE_PCT,CEILING_HEIGHT_NBR,VISIBILITY_NBR) "
+				+ "values (?,?,?,?,?,?,?,?,?,?)"
+				+ "ON DUPLICATE KEY "
+				+ "UPDATE TEMPERATURE_NBR=TEMPERATURE_NBR, WIND_DIRECTION_NBR=WIND_DIRECTION_NBR, WIND_SPEED_NBR=WIND_SPEED_NBR, WIND_GUST_NBR=WIND_GUST_NBR,"
+				+ " PERCIPITATION_CHANGE_PCT=PERCIPITATION_CHANGE_PCT, CEILING_HEIGHT_NBR=CEILING_HEIGHT_NBR, VISIBILITY_NBR=VISIBILITY_NBR";
 		this.jdbcTemplate.batchUpdate(insertQuery, new BatchPreparedStatementSetter() {
 
 			@Override
