@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,6 +32,9 @@ public class AirportWeatherDetailsServiceImpl implements AirportWeatherDetailsSe
 	private WebClient webClient;
 	@Autowired
 	private AirportweatherDao daoAirportWeather;
+
+	@Value("${weather.service.include.airports}")
+	private List<String> lstAirports;
 
 	private String getWebClientResponse(String url) {
 		return webClient.get().uri(url).retrieve().bodyToMono(String.class).block();
@@ -49,8 +53,8 @@ public class AirportWeatherDetailsServiceImpl implements AirportWeatherDetailsSe
 			executorService.execute(newRunnable(airports[i], startDate, endDate));
 		}
 		executorService.shutdown();
-		while (!executorService.isTerminated()) {  
-        }  
+		while (!executorService.isTerminated()) {
+		}
 		System.out.println("run completed...");
 		long endTime = System.nanoTime();
 		long totalTime = endTime - startTime;
@@ -76,32 +80,31 @@ public class AirportWeatherDetailsServiceImpl implements AirportWeatherDetailsSe
 				BufferedReader br = new BufferedReader(new InputStreamReader(stream));) {
 			line = br.readLine().trim();
 			String airport = line.substring(0, line.indexOf(" "));
-			if(airport.length()!=4 || !airport.matches("[a-zA-Z]+")){
-				return;
-			}
-			while ((line = br.readLine()) != null) {
-				line = line.trim();
-				if (line.contains("UTC")) {
-					utc = getHourlyData(line);
-				} else if (line.startsWith("TMP")) {
-					tmp = getHourlyData(line);
-				} else if (line.startsWith("WDR")) {
-					wdr = getHourlyData(line);
-				} else if (line.startsWith("WSP")) {
-					wsp = getHourlyData(line);
-				} else if (line.startsWith("GST")) {
-					gst = getHourlyData(line);
-				} else if (line.startsWith("P01")) {
-					p01 = getHourlyData(line);
-				} else if (line.startsWith("CIG")) {
-					cig = getHourlyData(line);
-				} else if (line.startsWith("VIS")) {
-					vis = getHourlyData(line);
+				if (lstAirports.contains(airport)) {
+					while ((line = br.readLine()) != null) {
+						line = line.trim();
+						if (line.contains("UTC")) {
+							utc = getHourlyData(line);
+						} else if (line.startsWith("TMP")) {
+							tmp = getHourlyData(line);
+						} else if (line.startsWith("WDR")) {
+							wdr = getHourlyData(line);
+						} else if (line.startsWith("WSP")) {
+							wsp = getHourlyData(line);
+						} else if (line.startsWith("GST")) {
+							gst = getHourlyData(line);
+						} else if (line.startsWith("P01")) {
+							p01 = getHourlyData(line);
+						} else if (line.startsWith("CIG")) {
+							cig = getHourlyData(line);
+						} else if (line.startsWith("VIS")) {
+							vis = getHourlyData(line);
+						}
+					}
+					List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(airport, startDate, endDate, utc, tmp,
+							wdr, wsp, gst, p01, cig, vis);
+					mapHourlyWeatherData.put(airport, lstHourlyData);
 				}
-			}
-			List<HourlyWeatherDataDto> lstHourlyData = getLstHourlyData(airport, startDate, endDate, utc, tmp, wdr, wsp,
-					gst, p01, cig, vis);
-			mapHourlyWeatherData.put(airport, lstHourlyData);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
